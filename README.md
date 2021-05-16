@@ -1,5 +1,5 @@
 # termpaint
-A small application that allows you draw stuff within the terminal. It is written in the Nim programming language using the [illwill](https://github.com/johnnovak/illwill) library.
+A small application that allows you to draw stuff within the terminal. It is written in the Nim programming language using the [illwill](https://github.com/johnnovak/illwill) library.
 
 ## Compiling and Running
 
