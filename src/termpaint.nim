@@ -1,7 +1,20 @@
+#[
+    TERMPAINT
+
+    Termpaint is a small application that allows you to draw stuff
+    within the terminal.
+
+    Licensed under the MIT license. (c) 2021 thetek
+]#
+
+
+
+# import illwill library
 import illwill
 
 
 
+# exit(): de-init the application and quit.
 proc exit() {.noconv.} =
     illwillDeinit()
     showCursor()
@@ -13,12 +26,12 @@ proc main() =
 
     # variables
     var
-        color        = 1
-        color_id     = fgWhite
-        color_bright = false
-        old_termsize = terminalSize()
-        tool         = 1
-        tool_name    = "Draw "
+        color        = 1              # the currently selected color id (1..7)
+        color_id     = fgWhite        # the illwill color matching `color`
+        color_bright = false          # is secondary (brigt) color used?
+        old_termsize = terminalSize() # terminal size for detecting size changes
+        tool         = 1              # the currently selected tool id (1..5)
+        tool_name    = "Draw "        # the name of the selected tool
 
 
     # initialize illwill
@@ -68,7 +81,9 @@ proc main() =
 
     # select color from keypress
     proc select_color(n: int) =
+        # remove * from currently selected color
         tb.write(2, color, bgNone, " ")
+        # get new color and illwill color id
         color = n
         case color
             of 1: color_id = fgWhite
@@ -79,21 +94,26 @@ proc main() =
             of 6: color_id = fgMagenta
             of 7: color_id = fgCyan
             else: discard
+        # write * to new selected color
         tb.write(2, color, bgNone, fgWhite, styleBright, "*")
     
 
     # use bright color
     proc toggle_bright() =
         color_bright = not color_bright
+        # add * if bright color is enabled
         if color_bright:
             tb.write(2, 9, bgNone, fgWhite, styleBright, "*")
+        # remove * if bright color is disabled
         else:
             tb.write(2, 9, bgNone, " ")
 
 
     # select tool from keypress
     proc select_tool(n: int) =
+        # clear bold formatting from current tool
         tb.write(2, tool+11, bgNone, fgWhite, tool_name)
+        # get new tool id and tool name
         tool = n
         case n
             of 1: tool_name = "Draw "
@@ -102,11 +122,13 @@ proc main() =
             of 4: tool_name = "Rect "
             of 5: tool_name = "RectO"
             else: discard
+        # write new tool name in bold
         tb.write(2, tool+11, bgNone, fgWhite, styleBright, tool_name)
     
 
     # handle mouse clicks
     proc mouse_click() =
+        # get mouse status
         let mi = getMouse()
         if mi.action == MouseButtonAction.mbaPressed:
 
@@ -124,18 +146,23 @@ proc main() =
             
             # clicked in canvas
             elif (13 < mi.x and mi.x < terminalWidth() - 2) and (0 < mi.y and mi.y < terminalHeight() - 1):
+                # draw tool selected
                 if tool == 1:
                     if color_bright:
                         tb.write(mi.x, mi.y, color_id, styleBright, "█", fgNone, resetStyle)
                     else:
                         tb.write(mi.x, mi.y, color_id, "█", fgNone)
+                # erase tool selected
                 elif tool == 2:
                     tb.write(mi.x, mi.y, fgBlack, "█")
+
+                # TODO: more tools - line, rectangle, rectangle outline
 
 
     # main loop
     while true:
 
+        # get current key press
         var key = getKey()
 
         case key
@@ -182,6 +209,6 @@ proc main() =
 
 
 
-# start ui (and restart if break in main loop)
+# start ui (and restart it if `break` in main loop)
 while true:
     main()
